@@ -8,6 +8,7 @@ let x;
 let y;
 let waveValues = [];
 let trajectoryValues = [];
+let valuePointer = 0;
 
 function fourier(n) {
     let phase = n * time * P;
@@ -26,15 +27,17 @@ function fourier(n) {
     ctx.stroke();
 }
 
-function drawTrajectory(){
-    ctx.strokeStyle = "rgba(100,200,30,0.5)"
+function drawTrajectory() {
+    ctx.strokeStyle = "red"
 
-    if(trajectoryValues.length==0){ return; }
+    if (trajectoryValues.length == 0) {
+        return;
+    }
     // draw each
-    for(let i=0; i<trajectoryValues.length; i++){
+    for (let i = 0; i < trajectoryValues.length; i++) {
         ctx.beginPath();
-        ctx.moveTo(trajectoryValues[i].x1,trajectoryValues[i].y1);
-        ctx.lineTo(trajectoryValues[i].x2,trajectoryValues[i].y2);
+        ctx.moveTo(trajectoryValues[i].x1, trajectoryValues[i].y1);
+        ctx.lineTo(trajectoryValues[i].x2, trajectoryValues[i].y2);
         ctx.stroke();
     }
 }
@@ -47,14 +50,28 @@ function translateLine() {
     ctx.stroke();
 }
 
+function drawWave() {
+
+    ctx.beginPath();
+    let x = 450;
+
+    waveValues[valuePointer] = y;
+    valuePointer++;
+    ctx.strokeStyle = "white";
+
+    ctx.moveTo(x + 5, y + 0.5);
+    for (var i = 1; i < 300; ++i) {
+            ctx.lineTo(x + i , waveValues[(valuePointer - i)]);
+    }
+    ctx.stroke();
+}
+
 function animate() {
-    // ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // ctx.fillStyle = 'black'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     x = 200;
     y = 200;
-    let phasors = 2;
+    let phasors = 4;
     for (let n = 0; n <= phasors; n++) {
         fourier(2 * n + 1);
     }
@@ -66,7 +83,8 @@ function animate() {
     //trajectory
     trajectoryValues.push( {x1: x, y1: y, x2: x-1, y2: y-1} );
     drawTrajectory();
-    // translateLine();
+    translateLine();
+    drawWave();
     
     time += 0.01
     window.requestAnimationFrame(animate);
